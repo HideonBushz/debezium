@@ -61,7 +61,7 @@ public final class MySqlConnectorTask extends BaseSourceTask {
         return Module.version();
     }
 
-    public static void main(String[] args) {
+    /*public static void main(String[] args) {
         Map<String, String> map = new HashMap<>();
         Configuration configuration = Configuration.from(map);
         map.put("connector.class", "io.debezium.connector.mysql.MySqlConnector");
@@ -78,19 +78,25 @@ public final class MySqlConnectorTask extends BaseSourceTask {
         map.put("name", "test_debug");
         map.put("database.whitelist", "dbtest");
         new MySqlConnectorTask().start(configuration);
-    }
+    }*/
 
     @Override
     public ChangeEventSourceCoordinator start(Configuration config) {
+        // 获取database.server.name
         final String serverName = config.getString(MySqlConnectorConfig.SERVER_NAME);
         PreviousContext prevLoggingContext = LoggingContext.forConnector(Module.contextName(), serverName, "task");
 
         try {
             // Get the offsets for our partition ...
+
+            // 默认不读快照
             boolean startWithSnapshot = false;
+            //封装成 <"server":"$database.server.name">
             Map<String, String> partition = Collect.hashMapOf(SourceInfo.SERVER_PARTITION_KEY, serverName);
+            //获取offset
             Map<String, ?> offsets = getRestartOffset(context.offsetStorageReader().offset(partition));
             final SourceInfo source;
+
             if (offsets != null) {
                 Filters filters = SourceInfo.offsetsHaveFilterInfo(offsets) ? getOldFilters(offsets, config) : getAllFilters(config);
                 this.taskContext = createAndStartTaskContext(config, filters);
@@ -153,7 +159,7 @@ public final class MySqlConnectorTask extends BaseSourceTask {
                 }
 
             } else {
-                // We have no recorded offsets ...
+                // We have no recorded offsets ... 第一次启动作业,读不到offset
                 this.taskContext = createAndStartTaskContext(config, getAllFilters(config));
                 taskContext.initializeHistoryStorage();
                 this.connectionContext = taskContext.getConnectionContext();
@@ -183,6 +189,7 @@ public final class MySqlConnectorTask extends BaseSourceTask {
                 }
             }
 
+
             if (!startWithSnapshot && source.gtidSet() == null && connectionContext.isGtidModeEnabled()) {
                 // The snapshot will properly determine the GTID set, but we're not starting with a snapshot and GTIDs were not
                 // previously used but the MySQL server has them enabled ...
@@ -205,6 +212,7 @@ public final class MySqlConnectorTask extends BaseSourceTask {
                     // Adding a timed blocking reader to delay the snapshot, can help to avoid initial rebalancing interruptions
                     chainedReaderBuilder.addReader(new TimedBlockingReader("timed-blocker", taskContext.getConnectorConfig().getSnapshotDelay()));
                 }
+                //SnapshotReader订阅全量数据
                 chainedReaderBuilder.addReader(snapshotReader);
 
                 if (taskContext.isInitialSnapshotOnly()) {
@@ -226,6 +234,7 @@ public final class MySqlConnectorTask extends BaseSourceTask {
                         }
                     }
                     BinlogReader binlogReader = new BinlogReader("binlog", taskContext, null);
+//                    BinlogReader订阅最新的binlog数据
                     chainedReaderBuilder.addReader(binlogReader);
                 }
             } else {
@@ -444,6 +453,7 @@ public final class MySqlConnectorTask extends BaseSourceTask {
         PreviousContext prevLoggingContext = this.taskContext.configureLoggingContext("task");
         try {
             logger.trace("Polling for events");
+            //io.debezium.connector.mysql.AbstractReader.poll()
             return currentReader.poll();
         } finally {
             prevLoggingContext.restore();

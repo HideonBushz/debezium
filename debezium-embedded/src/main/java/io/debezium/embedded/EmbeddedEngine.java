@@ -717,6 +717,7 @@ public final class EmbeddedEngine implements DebeziumEngine<SourceRecord> {
                 connector.initialize(context);
                 OffsetStorageWriter offsetWriter = new OffsetStorageWriter(offsetStore, engineName,
                         keyConverter, valueConverter);
+                //创建offset获取对象
                 OffsetStorageReader offsetReader = new OffsetStorageReaderImpl(offsetStore, engineName,
                         keyConverter, valueConverter);
                 Duration commitTimeout = Duration.ofMillis(config.getLong(OFFSET_COMMIT_TIMEOUT_MS));
@@ -744,6 +745,7 @@ public final class EmbeddedEngine implements DebeziumEngine<SourceRecord> {
                         SourceTaskContext taskContext = new SourceTaskContext() {
                             @Override
                             public OffsetStorageReader offsetStorageReader() {
+                                //返回offset的阅读器
                                 return offsetReader;
                             }
 
@@ -776,6 +778,7 @@ public final class EmbeddedEngine implements DebeziumEngine<SourceRecord> {
                             List<SourceRecord> changeRecords = null;
                             try {
                                 LOGGER.debug("Embedded engine is polling task for records on thread {}", runningThread.get());
+                                //拉取数据
                                 changeRecords = task.poll(); // blocks until there are values ...
                                 LOGGER.debug("Embedded engine returned from polling task for records");
                             }
