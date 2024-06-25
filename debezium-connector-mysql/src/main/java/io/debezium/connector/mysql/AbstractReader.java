@@ -57,8 +57,8 @@ public abstract class AbstractReader implements Reader {
     /**
      * Create a snapshot reader.
      *
-     * @param name the name of the reader
-     * @param context the task context in which this reader is running; may not be null
+     * @param name              the name of the reader
+     * @param context           the task context in which this reader is running; may not be null
      * @param acceptAndContinue a predicate that returns true if the tested {@link SourceRecord} should be accepted and
      *                          false if the record and all subsequent records should be ignored. The reader will stop
      *                          accepting records once {@link #enqueueRecord(SourceRecord)} is called with a record
@@ -212,7 +212,7 @@ public abstract class AbstractReader implements Reader {
      * this error, and that {@link #doCleanup()} can be called at any time.
      *
      * @param error the error that resulted in the failure; should not be {@code null}
-     * @param msg the error message; may not be null
+     * @param msg   the error message; may not be null
      */
     protected void failed(Throwable error, String msg) {
         ConnectException wrapped = wrap(error);
@@ -279,6 +279,7 @@ public abstract class AbstractReader implements Reader {
         logger.trace("Polling for next batch of records");
         List<SourceRecord> batch = new ArrayList<>(maxBatchSize);
         final Timer timeout = Threads.timer(Clock.SYSTEM, Temporals.min(pollInterval, ConfigurationDefaults.RETURN_CONTROL_INTERVAL));
+        // 拉起数据
         while (running.get() && (records.drainTo(batch, maxBatchSize) == 0) && !success.get()) {
             // No records are available even though the snapshot has not yet completed, so sleep for a bit ...
             metronome.pause();

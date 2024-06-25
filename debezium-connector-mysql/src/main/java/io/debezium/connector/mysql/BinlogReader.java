@@ -85,7 +85,6 @@ import io.debezium.util.Threads;
  * A component that reads the binlog of a MySQL server, and records any schema changes in {@link MySqlSchema}.
  *
  * @author Randall Hauch
- *
  */
 public class BinlogReader extends AbstractReader {
 
@@ -177,8 +176,8 @@ public class BinlogReader extends AbstractReader {
     /**
      * Create a binlog reader.
      *
-     * @param name the name of this reader; may not be null
-     * @param context the task context in which this reader is running; may not be null
+     * @param name              the name of this reader; may not be null
+     * @param context           the task context in which this reader is running; may not be null
      * @param acceptAndContinue see {@link AbstractReader#AbstractReader(String, MySqlTaskContext, Predicate)}
      */
     public BinlogReader(String name, MySqlTaskContext context, HaltingPredicate acceptAndContinue) {
@@ -188,10 +187,10 @@ public class BinlogReader extends AbstractReader {
     /**
      * Create a binlog reader.
      *
-     * @param name the name of this reader; may not be null
-     * @param context the task context in which this reader is running; may not be null
+     * @param name              the name of this reader; may not be null
+     * @param context           the task context in which this reader is running; may not be null
      * @param acceptAndContinue see {@link AbstractReader#AbstractReader(String, MySqlTaskContext, Predicate)}
-     * @param serverId the server id to use for the {@link BinaryLogClient}
+     * @param serverId          the server id to use for the {@link BinaryLogClient}
      */
     public BinlogReader(String name, MySqlTaskContext context, HaltingPredicate acceptAndContinue, long serverId) {
         super(name, context, acceptAndContinue);
@@ -280,8 +279,11 @@ public class BinlogReader extends AbstractReader {
         // Add our custom deserializers ...
         eventDeserializer.setEventDataDeserializer(EventType.STOP, new StopEventDataDeserializer());
         eventDeserializer.setEventDataDeserializer(EventType.GTID, new GtidEventDataDeserializer());
+
+        // 在这里封装了数据类型的转化逻辑
         eventDeserializer.setEventDataDeserializer(EventType.WRITE_ROWS,
                 new RowDeserializers.WriteRowsDeserializer(tableMapEventByTableId));
+
         eventDeserializer.setEventDataDeserializer(EventType.UPDATE_ROWS,
                 new RowDeserializers.UpdateRowsDeserializer(tableMapEventByTableId));
         eventDeserializer.setEventDataDeserializer(EventType.DELETE_ROWS,
@@ -563,7 +565,7 @@ public class BinlogReader extends AbstractReader {
         if (!eventHeader.getEventType().equals(EventType.HEARTBEAT)) {
             // HEARTBEAT events have no timestamp; only set the timestamp if the event is not a HEARTBEAT
             source.setBinlogTimestampSeconds(eventHeader.getTimestamp() / 1000L); // client returns milliseconds,
-                                                                                  // but only second precision
+            // but only second precision
         }
 
         source.setBinlogServerId(eventHeader.getServerId());
@@ -590,6 +592,7 @@ public class BinlogReader extends AbstractReader {
             eventHandlers.getOrDefault(eventType, this::ignoreEvent).accept(event);
 
             // Generate heartbeat message if the time is right
+            // enqueueRecord 用于处理队列中数据用于poll
             heartbeat.heartbeat(source.partition(), source.offset(), (BlockingConsumer<SourceRecord>) this::enqueueRecord);
 
             // Capture that we've completed another event ...

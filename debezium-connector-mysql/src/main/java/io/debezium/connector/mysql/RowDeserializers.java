@@ -80,6 +80,7 @@ class RowDeserializers {
 
         @Override
         protected Serializable deserializeDatetimeV2(int meta, ByteArrayInputStream inputStream) throws IOException {
+            Serializable x = (RowDeserializers.deserializeDatetimeV2(meta, inputStream));
             return RowDeserializers.deserializeDatetimeV2(meta, inputStream);
         }
 
@@ -194,36 +195,43 @@ class RowDeserializers {
 
         @Override
         protected Serializable deserializeDate(ByteArrayInputStream inputStream) throws IOException {
+            Serializable x = ("1 -> " + RowDeserializers.deserializeDate(inputStream));
             return RowDeserializers.deserializeDate(inputStream);
         }
 
         @Override
         protected Serializable deserializeDatetime(ByteArrayInputStream inputStream) throws IOException {
+            Serializable x = ("2 -> " + RowDeserializers.deserializeDatetime(inputStream));
             return RowDeserializers.deserializeDatetime(inputStream);
         }
 
         @Override
         protected Serializable deserializeDatetimeV2(int meta, ByteArrayInputStream inputStream) throws IOException {
+            Serializable x = ("3->" + RowDeserializers.deserializeDatetimeV2(meta, inputStream));
             return RowDeserializers.deserializeDatetimeV2(meta, inputStream);
         }
 
         @Override
         protected Serializable deserializeTimeV2(int meta, ByteArrayInputStream inputStream) throws IOException {
+            Serializable x = ("4-> " + RowDeserializers.deserializeTimeV2(meta, inputStream));
             return RowDeserializers.deserializeTimeV2(meta, inputStream);
         }
 
         @Override
         protected Serializable deserializeTime(ByteArrayInputStream inputStream) throws IOException {
+            Serializable x = ("5->" + RowDeserializers.deserializeTime(inputStream));
             return RowDeserializers.deserializeTime(inputStream);
         }
 
         @Override
         protected Serializable deserializeTimestamp(ByteArrayInputStream inputStream) throws IOException {
+            Serializable x = ("6" + RowDeserializers.deserializeTimestamp(inputStream));
             return RowDeserializers.deserializeTimestamp(inputStream);
         }
 
         @Override
         protected Serializable deserializeTimestampV2(int meta, ByteArrayInputStream inputStream) throws IOException {
+            Serializable x = ("7" + RowDeserializers.deserializeTimestampV2(meta, inputStream));
             return RowDeserializers.deserializeTimestampV2(meta, inputStream);
         }
 
@@ -239,7 +247,7 @@ class RowDeserializers {
     /**
      * Converts a MySQL string to a {@code byte[]}.
      *
-     * @param length the number of bytes used to store the length of the string
+     * @param length      the number of bytes used to store the length of the string
      * @param inputStream the binary stream containing the raw binlog event data for the value
      * @return the {@code byte[]} object
      * @throws IOException if there is an error reading from the binlog event data
@@ -254,7 +262,7 @@ class RowDeserializers {
     /**
      * Converts a MySQL string to a {@code byte[]}.
      *
-     * @param meta the {@code meta} value containing the number of bytes in the length field
+     * @param meta        the {@code meta} value containing the number of bytes in the length field
      * @param inputStream the binary stream containing the raw binlog event data for the value
      * @return the {@code byte[]} object
      * @throws IOException if there is an error reading from the binlog event data
@@ -306,7 +314,7 @@ class RowDeserializers {
     /**
      * Converts a MySQL {@code TIME} value <em>with fractional seconds</em> to a {@link java.time.Duration}.
      *
-     * @param meta the {@code meta} value containing the fractional second precision, or {@code fsp}
+     * @param meta        the {@code meta} value containing the fractional second precision, or {@code fsp}
      * @param inputStream the binary stream containing the raw binlog event data for the value
      * @return the {@link java.time.Duration} object
      * @throws IOException if there is an error reading from the binlog event data
@@ -384,7 +392,7 @@ class RowDeserializers {
      * This method treats all <a href="http://dev.mysql.com/doc/refman/5.7/en/date-and-time-types.html">zero values</a>
      * for {@code DATETIME} columns as NULL, since they cannot be accurately represented as valid {@link LocalDateTime} objects.
      *
-     * @param meta the {@code meta} value containing the fractional second precision, or {@code fsp}
+     * @param meta        the {@code meta} value containing the fractional second precision, or {@code fsp}
      * @param inputStream the binary stream containing the raw binlog event data for the value
      * @return the {@link LocalDateTime} object
      * @throws IOException if there is an error reading from the binlog event data
@@ -439,7 +447,7 @@ class RowDeserializers {
      * MySQL stores the {@code TIMESTAMP} values as seconds + fractional seconds past epoch in UTC, but the resulting
      * {@link OffsetDateTime} will be in the local timezone.
      *
-     * @param meta the {@code meta} value containing the fractional second precision, or {@code fsp}
+     * @param meta        the {@code meta} value containing the fractional second precision, or {@code fsp}
      * @param inputStream the binary stream containing the raw binlog event data for the value
      * @return the {@link OffsetDateTime} object
      * @throws IOException if there is an error reading from the binlog event data
@@ -467,11 +475,11 @@ class RowDeserializers {
      * We can't use/access the private {@code split} method in the {@link AbstractRowsEventDataDeserializer} class, so we
      * replicate it here. Note the original is licensed under the same Apache Software License 2.0 as Debezium.
      *
-     * @param value the long value
+     * @param value   the long value
      * @param divider the value used to separate the individual values (e.g., 10 to separate each digit into a separate value,
-     *            100 to separate each pair of digits into a separate value, 1000 to separate each 3 digits into a separate value,
-     *            etc.)
-     * @param length the expected length of the integer array
+     *                100 to separate each pair of digits into a separate value, 1000 to separate each 3 digits into a separate value,
+     *                etc.)
+     * @param length  the expected length of the integer array
      * @return the integer values
      * @author <a href="mailto:stanley.shyiko@gmail.com">Stanley Shyiko</a>
      */
@@ -491,7 +499,7 @@ class RowDeserializers {
      * We can't use/access the private {@code bigEndianLong} method in the {@link AbstractRowsEventDataDeserializer} class, so
      * we replicate it here. Note the original is licensed under the same Apache Software License 2.0 as Debezium.
      *
-     * @param bytes the bytes containing the big-endian representation of the value
+     * @param bytes  the bytes containing the big-endian representation of the value
      * @param offset the offset within the {@code bytes} byte array where the value starts
      * @param length the length of the byte representation within the {@code bytes} byte array
      * @return the long value
@@ -512,10 +520,10 @@ class RowDeserializers {
      * We can't use/access the private {@code bitSlice} method in the {@link AbstractRowsEventDataDeserializer} class, so
      * we replicate it here. Note the original is licensed under the same Apache Software License 2.0 as Debezium.
      *
-     * @param value the long containing the integer encoded within it
-     * @param bitOffset the number of bits where the integer value starts
+     * @param value        the long containing the integer encoded within it
+     * @param bitOffset    the number of bits where the integer value starts
      * @param numberOfBits the number of bits in the integer value
-     * @param payloadSize the total number of bits used in the {@code value}
+     * @param payloadSize  the total number of bits used in the {@code value}
      * @return the integer value
      */
     protected static int bitSlice(long value, int bitOffset, int numberOfBits, int payloadSize) {
@@ -531,8 +539,8 @@ class RowDeserializers {
      * so we replicate it here with modifications to support nanoseconds rather than microseconds.
      * Note the original is licensed under the same Apache Software License 2.0 as Debezium.
      *
-     * @param fsp the fractional seconds precision describing the number of digits precision used to store the fractional seconds
-     *            (e.g., 1 for storing tenths of a second, 2 for storing hundredths, 3 for storing milliseconds, etc.)
+     * @param fsp         the fractional seconds precision describing the number of digits precision used to store the fractional seconds
+     *                    (e.g., 1 for storing tenths of a second, 2 for storing hundredths, 3 for storing milliseconds, etc.)
      * @param inputStream the binary data stream
      * @return the number of nanoseconds
      * @throws IOException if there is an error reading from the binlog event data
@@ -559,8 +567,8 @@ class RowDeserializers {
      * so we replicate it here with modifications to support nanoseconds rather than microseconds and negative values.
      * Note the original is licensed under the same Apache Software License 2.0 as Debezium.
      *
-     * @param fsp the fractional seconds precision describing the number of digits precision used to store the fractional seconds
-     *            (e.g., 1 for storing tenths of a second, 2 for storing hundredths, 3 for storing milliseconds, etc.)
+     * @param fsp         the fractional seconds precision describing the number of digits precision used to store the fractional seconds
+     *                    (e.g., 1 for storing tenths of a second, 2 for storing hundredths, 3 for storing milliseconds, etc.)
      * @param inputStream the binary data stream
      * @return the number of nanoseconds
      * @throws IOException if there is an error reading from the binlog event data

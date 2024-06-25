@@ -233,6 +233,7 @@ public class RecordMakers {
                     Map<String, Object> offset = source.offsetForRow(rowNumber, numberOfRows);
                     source.tableEvent(id);
                     Struct origin = source.struct();
+                    // 封装快照读取的数据对象
                     SourceRecord record = new SourceRecord(partition, getSourceRecordOffset(offset), topicName, partitionNum,
                             keySchema, key, envelope.schema(), envelope.read(value, origin, ts));
                     consumer.accept(record);

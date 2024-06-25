@@ -203,6 +203,7 @@ public final class ChainedReader implements Reader {
         else {
             logger.debug("Starting the {} reader", reader.name());
         }
+        // io.debezium.connector.mysql.AbstractReader.start()
         reader.start();
         currentReader.set(reader);
         return true;

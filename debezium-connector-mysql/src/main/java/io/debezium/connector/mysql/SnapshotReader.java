@@ -71,7 +71,7 @@ public class SnapshotReader extends AbstractReader {
     /**
      * Create a snapshot reader.
      *
-     * @param name the name of this reader; may not be null
+     * @param name    the name of this reader; may not be null
      * @param context the task context in which this reader is running; may not be null
      */
     public SnapshotReader(String name, MySqlTaskContext context) {
@@ -82,8 +82,8 @@ public class SnapshotReader extends AbstractReader {
      * Create a snapshot reader that can use global locking only optionally.
      * Used mostly for testing.
      *
-     * @param name the name of this reader; may not be null
-     * @param context the task context in which this reader is running; may not be null
+     * @param name          the name of this reader; may not be null
+     * @param context       the task context in which this reader is running; may not be null
      * @param useGlobalLock {@code false} to simulate cloud (Amazon RDS) restrictions
      */
     SnapshotReader(String name, MySqlTaskContext context, boolean useGlobalLock) {
@@ -196,7 +196,6 @@ public class SnapshotReader extends AbstractReader {
 
     /**
      * In non-string mode the date field can contain zero in any of the date part which we need to handle as all-zero
-     *
      */
     private Object readDateField(ResultSet rs, int fieldNo, Column column, Table table) throws SQLException {
         Blob b = rs.getBlob(fieldNo);
@@ -215,7 +214,6 @@ public class SnapshotReader extends AbstractReader {
 
     /**
      * In non-string mode the time field can contain zero in any of the date part which we need to handle as all-zero
-     *
      */
     private Object readTimestampField(ResultSet rs, int fieldNo, Column column, Table table) throws SQLException {
         Blob b = rs.getBlob(fieldNo);
@@ -589,6 +587,7 @@ public class SnapshotReader extends AbstractReader {
                     return;
                 }
                 if (includeData) {
+                    // enqueueRecord用于处理poll拉去该容器的数据
                     BufferedBlockingConsumer<SourceRecord> bufferedRecordQueue = BufferedBlockingConsumer.bufferLast(super::enqueueRecord);
 
                     // Dump all of the tables and generate source records ...
@@ -609,6 +608,7 @@ public class SnapshotReader extends AbstractReader {
                         }
 
                         // Obtain a record maker for this table, which knows about the schema ...
+                        // bufferedRecordQueue用于存储数据
                         RecordsForTable recordMaker = context.makeRecord().forTable(tableId, null, bufferedRecordQueue);
                         if (recordMaker != null) {
 
@@ -665,6 +665,8 @@ public class SnapshotReader extends AbstractReader {
                                                 Column actualColumn = table.columns().get(i);
                                                 row[i] = readField(rs, j, actualColumn, table);
                                             }
+
+                                            // TODO 关键的读取数据
                                             recorder.recordRow(recordMaker, row, clock.currentTimeAsInstant()); // has no row number!
                                             rowNum.incrementAndGet();
                                             if (rowNum.get() % 100 == 0 && !isRunning()) {
@@ -910,6 +912,7 @@ public class SnapshotReader extends AbstractReader {
                 if (rs.next()) {
                     String binlogFilename = rs.getString(1);
                     long binlogPosition = rs.getLong(2);
+                    // 这里是为了记录快照同步前的binlog的文件和offset
                     source.setBinlogStartPoint(binlogFilename, binlogPosition);
                     if (rs.getMetaData().getColumnCount() > 4) {
                         // This column exists only in MySQL 5.6.5 or later ...

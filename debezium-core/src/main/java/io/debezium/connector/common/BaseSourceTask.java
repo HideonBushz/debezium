@@ -8,7 +8,6 @@ package io.debezium.connector.common;
 import java.time.Duration;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
@@ -74,7 +73,6 @@ public abstract class BaseSourceTask extends SourceTask {
 
     private Duration retriableRestartWait;
 
-
     @Override
     public final void start(Map<String, String> props) {
         if (context == null) {
@@ -106,7 +104,8 @@ public abstract class BaseSourceTask extends SourceTask {
             }
 
             this.coordinator = start(config);
-        } finally {
+        }
+        finally {
             stateLock.unlock();
         }
     }
@@ -134,7 +133,8 @@ public abstract class BaseSourceTask extends SourceTask {
 
         try {
             return doPoll();
-        } catch (RetriableException e) {
+        }
+        catch (RetriableException e) {
             stop(true);
             throw e;
         }
@@ -155,14 +155,17 @@ public abstract class BaseSourceTask extends SourceTask {
         try {
             if (state.get() == State.RUNNING) {
                 return true;
-            } else if (restartDelay != null && restartDelay.hasElapsed()) {
+            }
+            else if (restartDelay != null && restartDelay.hasElapsed()) {
                 start(props);
                 return true;
-            } else {
+            }
+            else {
                 LOGGER.info("Awaiting end of restart backoff period after a retriable error");
                 return false;
             }
-        } finally {
+        }
+        finally {
             stateLock.unlock();
         }
     }
@@ -183,7 +186,8 @@ public abstract class BaseSourceTask extends SourceTask {
 
             if (restart) {
                 LOGGER.warn("Going to restart connector after {} sec. after a retriable exception", retriableRestartWait.getSeconds());
-            } else {
+            }
+            else {
                 LOGGER.info("Stopping down connector");
             }
 
@@ -191,7 +195,8 @@ public abstract class BaseSourceTask extends SourceTask {
                 if (coordinator != null) {
                     coordinator.stop();
                 }
-            } catch (InterruptedException e) {
+            }
+            catch (InterruptedException e) {
                 Thread.interrupted();
                 LOGGER.error("Interrupted while stopping coordinator", e);
                 throw new ConnectException("Interrupted while stopping coordinator, failing the task");
@@ -203,7 +208,8 @@ public abstract class BaseSourceTask extends SourceTask {
                 restartDelay = ElapsedTimeStrategy.constant(Clock.system(), retriableRestartWait.toMillis());
                 restartDelay.hasElapsed();
             }
-        } finally {
+        }
+        finally {
             stateLock.unlock();
         }
     }
@@ -227,10 +233,12 @@ public abstract class BaseSourceTask extends SourceTask {
                 if (coordinator != null && lastOffset != null) {
                     coordinator.commitOffset(lastOffset);
                 }
-            } finally {
+            }
+            finally {
                 stateLock.unlock();
             }
-        } else {
+        }
+        else {
             LOGGER.warn("Couldn't commit processed log positions with the source database due to a concurrent connector shutdown or restart");
         }
     }
@@ -260,7 +268,8 @@ public abstract class BaseSourceTask extends SourceTask {
             OffsetContext offsetContext = loader.load(previousOffset);
             LOGGER.info("Found previous offset {}", offsetContext);
             return offsetContext;
-        } else {
+        }
+        else {
             return null;
         }
     }
