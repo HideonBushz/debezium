@@ -195,43 +195,36 @@ class RowDeserializers {
 
         @Override
         protected Serializable deserializeDate(ByteArrayInputStream inputStream) throws IOException {
-            Serializable x = ("1 -> " + RowDeserializers.deserializeDate(inputStream));
             return RowDeserializers.deserializeDate(inputStream);
         }
 
         @Override
         protected Serializable deserializeDatetime(ByteArrayInputStream inputStream) throws IOException {
-            Serializable x = ("2 -> " + RowDeserializers.deserializeDatetime(inputStream));
             return RowDeserializers.deserializeDatetime(inputStream);
         }
 
         @Override
         protected Serializable deserializeDatetimeV2(int meta, ByteArrayInputStream inputStream) throws IOException {
-            Serializable x = ("3->" + RowDeserializers.deserializeDatetimeV2(meta, inputStream));
             return RowDeserializers.deserializeDatetimeV2(meta, inputStream);
         }
 
         @Override
         protected Serializable deserializeTimeV2(int meta, ByteArrayInputStream inputStream) throws IOException {
-            Serializable x = ("4-> " + RowDeserializers.deserializeTimeV2(meta, inputStream));
             return RowDeserializers.deserializeTimeV2(meta, inputStream);
         }
 
         @Override
         protected Serializable deserializeTime(ByteArrayInputStream inputStream) throws IOException {
-            Serializable x = ("5->" + RowDeserializers.deserializeTime(inputStream));
             return RowDeserializers.deserializeTime(inputStream);
         }
 
         @Override
         protected Serializable deserializeTimestamp(ByteArrayInputStream inputStream) throws IOException {
-            Serializable x = ("6" + RowDeserializers.deserializeTimestamp(inputStream));
             return RowDeserializers.deserializeTimestamp(inputStream);
         }
 
         @Override
         protected Serializable deserializeTimestampV2(int meta, ByteArrayInputStream inputStream) throws IOException {
-            Serializable x = ("7" + RowDeserializers.deserializeTimestampV2(meta, inputStream));
             return RowDeserializers.deserializeTimestampV2(meta, inputStream);
         }
 
@@ -383,7 +376,7 @@ class RowDeserializers {
         if (year == 0 || month == 0 || day == 0) {
             return null;
         }
-        return LocalDateTime.of(year, month, day, hours, minutes, seconds, nanoOfSecond);
+        return LocalDateTime.of(year, month, day, hours - 8, minutes, seconds, nanoOfSecond);
     }
 
     /**
@@ -424,7 +417,7 @@ class RowDeserializers {
         if (year == 0 || month == 0 || day == 0) {
             return null;
         }
-        return LocalDateTime.of(year, month, day, hours, minutes, seconds, nanoOfSecond);
+        return LocalDateTime.of(year, month, day, hours - 8, minutes, seconds, nanoOfSecond);
     }
 
     /**
@@ -440,6 +433,7 @@ class RowDeserializers {
         long epochSecond = inputStream.readLong(4);
         int nanoSeconds = 0; // no fractional seconds
         return ZonedDateTime.ofInstant(Instant.ofEpochSecond(epochSecond, nanoSeconds), ZoneOffset.UTC);
+        // return ZonedDateTime.ofInstant(Instant.ofEpochSecond(epochSecond, nanoSeconds), ZoneOffset.of("-8"));
     }
 
     /**
@@ -456,6 +450,7 @@ class RowDeserializers {
         long epochSecond = bigEndianLong(inputStream.read(4), 0, 4);
         int nanoSeconds = deserializeFractionalSecondsInNanos(meta, inputStream);
         return ZonedDateTime.ofInstant(Instant.ofEpochSecond(epochSecond, nanoSeconds), ZoneOffset.UTC);
+        // return ZonedDateTime.ofInstant(Instant.ofEpochSecond(epochSecond, nanoSeconds), ZoneOffset.of("-8"));
     }
 
     /**

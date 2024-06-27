@@ -123,12 +123,12 @@ public class MySqlValueConverters extends JdbcValueConverters {
      * to values that require timezones.
      * <p>
      *
-     * @param decimalMode how {@code DECIMAL} and {@code NUMERIC} values should be treated; may be null if
-     *            {@link io.debezium.jdbc.JdbcValueConverters.DecimalMode#PRECISE} is to be used
+     * @param decimalMode           how {@code DECIMAL} and {@code NUMERIC} values should be treated; may be null if
+     *                              {@link io.debezium.jdbc.JdbcValueConverters.DecimalMode#PRECISE} is to be used
      * @param temporalPrecisionMode temporal precision mode based on {@link io.debezium.jdbc.TemporalPrecisionMode}
-     * @param bigIntUnsignedMode how {@code BIGINT UNSIGNED} values should be treated; may be null if
-     *            {@link io.debezium.jdbc.JdbcValueConverters.BigIntUnsignedMode#PRECISE} is to be used
-     * @param binaryMode how binary columns should be represented
+     * @param bigIntUnsignedMode    how {@code BIGINT UNSIGNED} values should be treated; may be null if
+     *                              {@link io.debezium.jdbc.JdbcValueConverters.BigIntUnsignedMode#PRECISE} is to be used
+     * @param binaryMode            how binary columns should be represented
      */
     public MySqlValueConverters(DecimalMode decimalMode, TemporalPrecisionMode temporalPrecisionMode, BigIntUnsignedMode bigIntUnsignedMode,
                                 BinaryHandlingMode binaryMode) {
@@ -142,14 +142,14 @@ public class MySqlValueConverters extends JdbcValueConverters {
      * to values that require timezones.
      * <p>
      *
-     * @param decimalMode how {@code DECIMAL} and {@code NUMERIC} values should be treated; may be null if
-     *            {@link io.debezium.jdbc.JdbcValueConverters.DecimalMode#PRECISE} is to be used
+     * @param decimalMode           how {@code DECIMAL} and {@code NUMERIC} values should be treated; may be null if
+     *                              {@link io.debezium.jdbc.JdbcValueConverters.DecimalMode#PRECISE} is to be used
      * @param temporalPrecisionMode temporal precision mode based on {@link io.debezium.jdbc.TemporalPrecisionMode}
-     * @param bigIntUnsignedMode how {@code BIGINT UNSIGNED} values should be treated; may be null if
-     *            {@link io.debezium.jdbc.JdbcValueConverters.BigIntUnsignedMode#PRECISE} is to be used
-     * @param binaryMode how binary columns should be represented
-     * @param adjuster a temporal adjuster to make a database specific time modification before conversion
-     * @param handler for errors during postponed binlog parsing
+     * @param bigIntUnsignedMode    how {@code BIGINT UNSIGNED} values should be treated; may be null if
+     *                              {@link io.debezium.jdbc.JdbcValueConverters.BigIntUnsignedMode#PRECISE} is to be used
+     * @param binaryMode            how binary columns should be represented
+     * @param adjuster              a temporal adjuster to make a database specific time modification before conversion
+     * @param handler               for errors during postponed binlog parsing
      */
     public MySqlValueConverters(DecimalMode decimalMode, TemporalPrecisionMode temporalPrecisionMode, BigIntUnsignedMode bigIntUnsignedMode,
                                 BinaryHandlingMode binaryMode,
@@ -309,7 +309,8 @@ public class MySqlValueConverters extends JdbcValueConverters {
                     return data -> convertDurationToMicroseconds(column, fieldDefn, data);
                 }
             case Types.TIMESTAMP:
-                return ((ValueConverter) (data -> convertTimestampToLocalDateTime(column, fieldDefn, data))).and(super.converter(column, fieldDefn));
+                ValueConverter valueConverter = (data -> convertTimestampToLocalDateTime(column, fieldDefn, data));
+                return valueConverter.and(super.converter(column, fieldDefn));
             default:
                 break;
         }
@@ -352,9 +353,9 @@ public class MySqlValueConverters extends JdbcValueConverters {
     /**
      * Convert the {@link String} {@code byte[]} value to a string value used in a {@link SourceRecord}.
      *
-     * @param column the column in which the value appears
+     * @param column    the column in which the value appears
      * @param fieldDefn the field definition for the {@link SourceRecord}'s {@link Schema}; never null
-     * @param data the data; may be null
+     * @param data      the data; may be null
      * @return the converted value, or null if the conversion could not be made and the column allows nulls
      * @throws IllegalArgumentException if the value could not be converted but the column does not allow nulls
      */
@@ -387,10 +388,10 @@ public class MySqlValueConverters extends JdbcValueConverters {
     /**
      * Convert the {@link String} or {@code byte[]} value to a string value used in a {@link SourceRecord}.
      *
-     * @param column the column in which the value appears
-     * @param fieldDefn the field definition for the {@link SourceRecord}'s {@link Schema}; never null
+     * @param column        the column in which the value appears
+     * @param fieldDefn     the field definition for the {@link SourceRecord}'s {@link Schema}; never null
      * @param columnCharset the Java character set in which column byte[] values are encoded; may not be null
-     * @param data the data; may be null
+     * @param data          the data; may be null
      * @return the converted value, or null if the conversion could not be made and the column allows nulls
      * @throws IllegalArgumentException if the value could not be converted but the column does not allow nulls
      */
@@ -410,9 +411,9 @@ public class MySqlValueConverters extends JdbcValueConverters {
      * Converts a value object for a MySQL {@code YEAR}, which appear in the binlog as an integer though returns from
      * the MySQL JDBC driver as either a short or a {@link java.sql.Date}.
      *
-     * @param column the column definition describing the {@code data} value; never null
+     * @param column    the column definition describing the {@code data} value; never null
      * @param fieldDefn the field definition; never null
-     * @param data the data object to be converted into a year literal integer value; never null
+     * @param data      the data object to be converted into a year literal integer value; never null
      * @return the converted value, or null if the conversion could not be made and the column allows nulls
      * @throws IllegalArgumentException if the value could not be converted but the column does not allow nulls
      */
@@ -444,10 +445,10 @@ public class MySqlValueConverters extends JdbcValueConverters {
      * the index of the enum option. The MySQL JDBC driver returns a string containing the option,
      * so this method calculates the same.
      *
-     * @param options the characters that appear in the same order as defined in the column; may not be null
-     * @param column the column definition describing the {@code data} value; never null
+     * @param options   the characters that appear in the same order as defined in the column; may not be null
+     * @param column    the column definition describing the {@code data} value; never null
      * @param fieldDefn the field definition; never null
-     * @param data the data object to be converted into an {@code ENUM} literal String value
+     * @param data      the data object to be converted into an {@code ENUM} literal String value
      * @return the converted value, or null if the conversion could not be made and the column allows nulls
      * @throws IllegalArgumentException if the value could not be converted but the column does not allow nulls
      */
@@ -482,10 +483,10 @@ public class MySqlValueConverters extends JdbcValueConverters {
      * every bit corresponds to a different option. The MySQL JDBC driver returns a string containing the comma-separated options,
      * so this method calculates the same.
      *
-     * @param options the characters that appear in the same order as defined in the column; may not be null
-     * @param column the column definition describing the {@code data} value; never null
+     * @param options   the characters that appear in the same order as defined in the column; may not be null
+     * @param column    the column definition describing the {@code data} value; never null
      * @param fieldDefn the field definition; never null
-     * @param data the data object to be converted into an {@code SET} literal String value; never null
+     * @param data      the data object to be converted into an {@code SET} literal String value; never null
      * @return the converted value, or null if the conversion could not be made and the column allows nulls
      * @throws IllegalArgumentException if the value could not be converted but the column does not allow nulls
      */
@@ -508,7 +509,7 @@ public class MySqlValueConverters extends JdbcValueConverters {
      * Note that this logic works when the column's {@link Column#typeName() type} contains the type name followed by parentheses.
      *
      * @param upperCaseTypeName the upper case form of the column's {@link Column#typeName() type name}
-     * @param upperCaseMatch the upper case form of the expected type or prefix of the type; may not be null
+     * @param upperCaseMatch    the upper case form of the expected type or prefix of the type; may not be null
      * @return {@code true} if the type matches the specified type, or {@code false} otherwise
      */
     protected boolean matches(String upperCaseTypeName, String upperCaseMatch) {
@@ -571,9 +572,9 @@ public class MySqlValueConverters extends JdbcValueConverters {
     /**
      * Convert the a value representing a POINT {@code byte[]} value to a Point value used in a {@link SourceRecord}.
      *
-     * @param column the column in which the value appears
+     * @param column    the column in which the value appears
      * @param fieldDefn the field definition for the {@link SourceRecord}'s {@link Schema}; never null
-     * @param data the data; may be null
+     * @param data      the data; may be null
      * @return the converted value, or null if the conversion could not be made and the column allows nulls
      * @throws IllegalArgumentException if the value could not be converted but the column does not allow nulls
      */
@@ -597,9 +598,9 @@ public class MySqlValueConverters extends JdbcValueConverters {
     /**
      * Convert the a value representing a GEOMETRY {@code byte[]} value to a Geometry value used in a {@link SourceRecord}.
      *
-     * @param column the column in which the value appears
+     * @param column    the column in which the value appears
      * @param fieldDefn the field definition for the {@link SourceRecord}'s {@link Schema}; never null
-     * @param data the data; may be null
+     * @param data      the data; may be null
      * @return the converted value, or null if the conversion could not be made and the column allows nulls
      * @throws IllegalArgumentException if the value could not be converted but the column does not allow nulls
      */
@@ -632,12 +633,10 @@ public class MySqlValueConverters extends JdbcValueConverters {
     /**
      * Convert the a value representing a Unsigned TINYINT value to the correct Unsigned TINYINT representation.
      *
-     * @param column the column in which the value appears
+     * @param column    the column in which the value appears
      * @param fieldDefn the field definition for the {@link SourceRecord}'s {@link Schema}; never null
-     * @param data the data; may be null
-     *
+     * @param data      the data; may be null
      * @return the converted value, or null if the conversion could not be made and the column allows nulls
-     *
      * @throws IllegalArgumentException if the value could not be converted but the column does not allow nulls
      */
     protected Object convertUnsignedTinyint(Column column, Field fieldDefn, Object data) {
@@ -658,12 +657,10 @@ public class MySqlValueConverters extends JdbcValueConverters {
     /**
      * Convert the a value representing a Unsigned SMALLINT value to the correct Unsigned SMALLINT representation.
      *
-     * @param column the column in which the value appears
+     * @param column    the column in which the value appears
      * @param fieldDefn the field definition for the {@link SourceRecord}'s {@link Schema}; never null
-     * @param data the data; may be null
-     *
+     * @param data      the data; may be null
      * @return the converted value, or null if the conversion could not be made and the column allows nulls
-     *
      * @throws IllegalArgumentException if the value could not be converted but the column does not allow nulls
      */
     protected Object convertUnsignedSmallint(Column column, Field fieldDefn, Object data) {
@@ -684,12 +681,10 @@ public class MySqlValueConverters extends JdbcValueConverters {
     /**
      * Convert the a value representing a Unsigned MEDIUMINT value to the correct Unsigned SMALLINT representation.
      *
-     * @param column the column in which the value appears
+     * @param column    the column in which the value appears
      * @param fieldDefn the field definition for the {@link SourceRecord}'s {@link Schema}; never null
-     * @param data the data; may be null
-     *
+     * @param data      the data; may be null
      * @return the converted value, or null if the conversion could not be made and the column allows nulls
-     *
      * @throws IllegalArgumentException if the value could not be converted but the column does not allow nulls
      */
     protected Object convertUnsignedMediumint(Column column, Field fieldDefn, Object data) {
@@ -710,12 +705,10 @@ public class MySqlValueConverters extends JdbcValueConverters {
     /**
      * Convert the a value representing a Unsigned INT value to the correct Unsigned INT representation.
      *
-     * @param column the column in which the value appears
+     * @param column    the column in which the value appears
      * @param fieldDefn the field definition for the {@link SourceRecord}'s {@link Schema}; never null
-     * @param data the data; may be null
-     *
+     * @param data      the data; may be null
      * @return the converted value, or null if the conversion could not be made and the column allows nulls
-     *
      * @throws IllegalArgumentException if the value could not be converted but the column does not allow nulls
      */
     protected Object convertUnsignedInt(Column column, Field fieldDefn, Object data) {
@@ -736,12 +729,10 @@ public class MySqlValueConverters extends JdbcValueConverters {
     /**
      * Convert the a value representing a Unsigned BIGINT value to the correct Unsigned INT representation.
      *
-     * @param column the column in which the value appears
+     * @param column    the column in which the value appears
      * @param fieldDefn the field definition for the {@link SourceRecord}'s {@link Schema}; never null
-     * @param data the data; may be null
-     *
+     * @param data      the data; may be null
      * @return the converted value, or null if the conversion could not be made and the column allows nulls
-     *
      * @throws IllegalArgumentException if the value could not be converted but the column does not allow nulls
      */
     protected Object convertUnsignedBigint(Column column, Field fieldDefn, Object data) {
@@ -770,9 +761,9 @@ public class MySqlValueConverters extends JdbcValueConverters {
      * the range of -838:59:59.000000 to 838:59:59.000000 of a MySQL TIME type and transfer data as signed INT64 which
      * reflects the DB value converted to microseconds.
      *
-     * @param column the column definition describing the {@code data} value; never null
+     * @param column    the column definition describing the {@code data} value; never null
      * @param fieldDefn the field definition; never null
-     * @param data the data object to be converted into a {@link java.time.Duration} type; never null
+     * @param data      the data object to be converted into a {@link java.time.Duration} type; never null
      * @return the converted value, or null if the conversion could not be made and the column allows nulls
      * @throws IllegalArgumentException if the value could not be converted but the column does not allow nulls
      */

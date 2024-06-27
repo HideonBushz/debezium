@@ -389,7 +389,8 @@ public class JdbcValueConverters implements ValueConverterProvider {
     protected Object convertTimestampWithZone(Column column, Field fieldDefn, Object data) {
         return convertValue(column, fieldDefn, data, fallbackTimestampWithTimeZone, (r) -> {
             try {
-                r.deliver(ZonedTimestamp.toIsoString(data, defaultOffset, adjuster));
+                String isoString = ZonedTimestamp.toIsoString(data, defaultOffset, adjuster);
+                r.deliver(isoString);
             }
             catch (IllegalArgumentException e) {
             }

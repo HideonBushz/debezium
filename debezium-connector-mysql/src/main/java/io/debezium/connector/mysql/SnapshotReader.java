@@ -1067,6 +1067,7 @@ public class SnapshotReader extends AbstractReader {
     }
 
     protected void recordRowAsRead(RecordsForTable recordMaker, Object[] row, Instant ts) throws InterruptedException {
+        // logger.info("liuliang01_rows '{}'", row.toString());
         recordMaker.read(row, ts);
     }
 

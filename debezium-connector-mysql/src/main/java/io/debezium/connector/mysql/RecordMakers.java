@@ -56,15 +56,15 @@ public class RecordMakers {
     /**
      * Create the record makers using the supplied components.
      *
-     * @param schema the schema information about the MySQL server databases; may not be null
-     * @param source the connector's source information; may not be null
-     * @param topicSelector the selector for topic names; may not be null
+     * @param schema                the schema information about the MySQL server databases; may not be null
+     * @param source                the connector's source information; may not be null
+     * @param topicSelector         the selector for topic names; may not be null
      * @param emitTombstoneOnDelete whether to emit a tombstone message upon DELETE events or not
-     * @param restartOffset the offset to publish with the {@link SourceInfo#RESTART_PREFIX} prefix
-     *                      as additional information in the offset. If the connector attempts to
-     *                      restart from an offset with information with this prefix it will
-     *                      create an offset from the prefixed information rather than restarting
-     *                      from the base offset.
+     * @param restartOffset         the offset to publish with the {@link SourceInfo#RESTART_PREFIX} prefix
+     *                              as additional information in the offset. If the connector attempts to
+     *                              restart from an offset with information with this prefix it will
+     *                              create an offset from the prefixed information rather than restarting
+     *                              from the base offset.
      * @see MySqlConnectorTask#getRestartOffset(Map)
      */
     public RecordMakers(MySqlSchema schema, SourceInfo source, TopicSelector<TableId> topicSelector,
@@ -89,9 +89,9 @@ public class RecordMakers {
     /**
      * Obtain the record maker for the given table, using the specified columns and sending records to the given consumer.
      *
-     * @param tableId the identifier of the table for which records are to be produced
+     * @param tableId         the identifier of the table for which records are to be produced
      * @param includedColumns the set of columns that will be included in each row; may be null if all columns are included
-     * @param consumer the consumer for all produced records; may not be null
+     * @param consumer        the consumer for all produced records; may not be null
      * @return the table-specific record maker; may be null if the table is not included in the connector
      */
     public RecordsForTable forTable(TableId tableId, BitSet includedColumns, BlockingConsumer<SourceRecord> consumer) {
@@ -118,9 +118,9 @@ public class RecordMakers {
     /**
      * Obtain the record maker for the given table, using the specified columns and sending records to the given consumer.
      *
-     * @param tableNumber the {@link #assign(long, TableId) assigned table number} for which records are to be produced
+     * @param tableNumber     the {@link #assign(long, TableId) assigned table number} for which records are to be produced
      * @param includedColumns the set of columns that will be included in each row; may be null if all columns are included
-     * @param consumer the consumer for all produced records; may not be null
+     * @param consumer        the consumer for all produced records; may not be null
      * @return the table-specific record maker; may be null if the table is not included in the connector
      */
     public RecordsForTable forTable(long tableNumber, BitSet includedColumns, BlockingConsumer<SourceRecord> consumer) {
@@ -134,10 +134,10 @@ public class RecordMakers {
     /**
      * Produce a schema change record for the given DDL statements.
      *
-     * @param databaseName the name of the database that is affected by the DDL statements; may not be null
-     * @param tables the list of tables affected by the DDL statements
+     * @param databaseName  the name of the database that is affected by the DDL statements; may not be null
+     * @param tables        the list of tables affected by the DDL statements
      * @param ddlStatements the DDL statements; may not be null
-     * @param consumer the consumer for all produced records; may not be null
+     * @param consumer      the consumer for all produced records; may not be null
      * @return the number of records produced; will be 0 or more
      */
     public int schemaChanges(String databaseName, Set<TableId> tables, String ddlStatements, BlockingConsumer<SourceRecord> consumer) {
@@ -150,8 +150,7 @@ public class RecordMakers {
         try {
             consumer.accept(record);
             return 1;
-        }
-        catch (InterruptedException e) {
+        } catch (InterruptedException e) {
             return 0;
         }
     }
@@ -184,8 +183,7 @@ public class RecordMakers {
     private Map<String, ?> getSourceRecordOffset(Map<String, Object> sourceOffset) {
         if (restartOffset == null) {
             return sourceOffset;
-        }
-        else {
+        } else {
             for (Entry<String, ?> restartOffsetEntry : restartOffset.entrySet()) {
                 sourceOffset.put(SourceInfo.RESTART_PREFIX + restartOffsetEntry.getKey(), restartOffsetEntry.getValue());
             }
@@ -198,9 +196,9 @@ public class RecordMakers {
      * Assign the given table number to the table with the specified {@link TableId table ID}.
      *
      * @param tableNumber the table number found in binlog events
-     * @param id the identifier for the corresponding table
+     * @param id          the identifier for the corresponding table
      * @return {@code true} if the assignment was successful, or {@code false} if the table is currently excluded in the
-     *         connector's configuration
+     * connector's configuration
      */
     public boolean assign(long tableNumber, TableId id) {
         Long existingTableNumber = tableNumbersByTableId.get(id);
@@ -226,6 +224,7 @@ public class RecordMakers {
                             BlockingConsumer<SourceRecord> consumer)
                     throws InterruptedException {
                 Struct key = tableSchema.keyFromColumnData(row);
+                //todo  这一步把时间类型转换了Long类型
                 Struct value = tableSchema.valueFromColumnData(row);
                 if (value != null || key != null) {
                     Schema keySchema = tableSchema.keySchema();
@@ -308,8 +307,7 @@ public class RecordMakers {
                                 keySchema, newkey, envelope.schema(), envelope.create(valueAfter, origin, ts), null, headers);
                         consumer.accept(record);
                         ++count;
-                    }
-                    else {
+                    } else {
                         // The key has not changed, so a simple update is fine ...
                         SourceRecord record = new SourceRecord(partition, getSourceRecordOffset(offset), topicName, partitionNum,
                                 keySchema, newkey, envelope.schema(), envelope.update(valueBefore, valueAfter, origin, ts));
@@ -430,7 +428,7 @@ public class RecordMakers {
          *
          * @param row the values of the row, in the same order as the columns in the {@link Table} definition in the
          *            {@link MySqlSchema}.
-         * @param ts the timestamp for this row
+         * @param ts  the timestamp for this row
          * @return the number of records produced; will be 0 or more
          * @throws InterruptedException if this thread is interrupted while waiting to give a source record to the consumer
          */
@@ -441,10 +439,10 @@ public class RecordMakers {
         /**
          * Produce a {@link io.debezium.data.Envelope.Operation#READ read} record for the row.
          *
-         * @param row the values of the row, in the same order as the columns in the {@link Table} definition in the
-         *            {@link MySqlSchema}.
-         * @param ts the timestamp for this row
-         * @param rowNumber the number of this row; must be 0 or more
+         * @param row          the values of the row, in the same order as the columns in the {@link Table} definition in the
+         *                     {@link MySqlSchema}.
+         * @param ts           the timestamp for this row
+         * @param rowNumber    the number of this row; must be 0 or more
          * @param numberOfRows the total number of rows to be read; must be 1 or more
          * @return the number of records produced; will be 0 or more
          * @throws InterruptedException if this thread is interrupted while waiting to give a source record to the consumer
@@ -458,7 +456,7 @@ public class RecordMakers {
          *
          * @param row the values of the row, in the same order as the columns in the {@link Table} definition in the
          *            {@link MySqlSchema}.
-         * @param ts the timestamp for this row
+         * @param ts  the timestamp for this row
          * @return the number of records produced; will be 0 or more
          * @throws InterruptedException if this thread is interrupted while waiting to give a source record to the consumer
          */
@@ -469,10 +467,10 @@ public class RecordMakers {
         /**
          * Produce a {@link io.debezium.data.Envelope.Operation#CREATE create} record for the row.
          *
-         * @param row the values of the row, in the same order as the columns in the {@link Table} definition in the
-         *            {@link MySqlSchema}.
-         * @param ts the timestamp for this row
-         * @param rowNumber the number of this row; must be 0 or more
+         * @param row          the values of the row, in the same order as the columns in the {@link Table} definition in the
+         *                     {@link MySqlSchema}.
+         * @param ts           the timestamp for this row
+         * @param rowNumber    the number of this row; must be 0 or more
          * @param numberOfRows the total number of rows to be read; must be 1 or more
          * @return the number of records produced; will be 0 or more
          * @throws InterruptedException if this thread is interrupted while waiting to give a source record to the consumer
@@ -485,10 +483,10 @@ public class RecordMakers {
          * Produce an {@link io.debezium.data.Envelope.Operation#UPDATE update} record for the row.
          *
          * @param before the values of the row <i>before</i> the update, in the same order as the columns in the {@link Table}
-         *            definition in the {@link MySqlSchema}
-         * @param after the values of the row <i>after</i> the update, in the same order as the columns in the {@link Table}
-         *            definition in the {@link MySqlSchema}
-         * @param ts the timestamp for this row
+         *               definition in the {@link MySqlSchema}
+         * @param after  the values of the row <i>after</i> the update, in the same order as the columns in the {@link Table}
+         *               definition in the {@link MySqlSchema}
+         * @param ts     the timestamp for this row
          * @return the number of records produced; will be 0 or more
          * @throws InterruptedException if this thread is interrupted while waiting to give a source record to the consumer
          */
@@ -499,12 +497,12 @@ public class RecordMakers {
         /**
          * Produce an {@link io.debezium.data.Envelope.Operation#UPDATE update} record for the row.
          *
-         * @param before the values of the row <i>before</i> the update, in the same order as the columns in the {@link Table}
-         *            definition in the {@link MySqlSchema}
-         * @param after the values of the row <i>after</i> the update, in the same order as the columns in the {@link Table}
-         *            definition in the {@link MySqlSchema}
-         * @param ts the timestamp for this row
-         * @param rowNumber the number of this row; must be 0 or more
+         * @param before       the values of the row <i>before</i> the update, in the same order as the columns in the {@link Table}
+         *                     definition in the {@link MySqlSchema}
+         * @param after        the values of the row <i>after</i> the update, in the same order as the columns in the {@link Table}
+         *                     definition in the {@link MySqlSchema}
+         * @param ts           the timestamp for this row
+         * @param rowNumber    the number of this row; must be 0 or more
          * @param numberOfRows the total number of rows to be read; must be 1 or more
          * @return the number of records produced; will be 0 or more
          * @throws InterruptedException if this thread is interrupted while waiting to give a source record to the consumer
@@ -518,7 +516,7 @@ public class RecordMakers {
          *
          * @param row the values of the row, in the same order as the columns in the {@link Table} definition in the
          *            {@link MySqlSchema}.
-         * @param ts the timestamp for this row
+         * @param ts  the timestamp for this row
          * @return the number of records produced; will be 0 or more
          * @throws InterruptedException if this thread is interrupted while waiting to give a source record to the consumer
          */
@@ -529,10 +527,10 @@ public class RecordMakers {
         /**
          * Produce a {@link io.debezium.data.Envelope.Operation#DELETE delete} record for the row.
          *
-         * @param row the values of the row, in the same order as the columns in the {@link Table} definition in the
-         *            {@link MySqlSchema}.
-         * @param ts the timestamp for this row
-         * @param rowNumber the number of this row; must be 0 or more
+         * @param row          the values of the row, in the same order as the columns in the {@link Table} definition in the
+         *                     {@link MySqlSchema}.
+         * @param ts           the timestamp for this row
+         * @param rowNumber    the number of this row; must be 0 or more
          * @param numberOfRows the total number of rows to be read; must be 1 or more
          * @return the number of records produced; will be 0 or more
          * @throws InterruptedException if this thread is interrupted while waiting to give a source record to the consumer

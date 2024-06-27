@@ -17,6 +17,8 @@ public interface ValueConverter {
      * @param data the column data value
      * @return the new data value
      */
+
+    // 调用io.debezium.connector.mysql.MySqlValueConverters.converter
     Object convert(Object data);
 
     /**

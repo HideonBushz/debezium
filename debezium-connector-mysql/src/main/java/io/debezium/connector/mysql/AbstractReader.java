@@ -301,7 +301,7 @@ public abstract class AbstractReader implements Reader {
             return null;
         }
         pollComplete(batch);
-        logger.trace("Completed batch of {} records", batch.size());
+        // logger.info("liuliang2 Completed batch of {} records", batch);
         return batch;
     }
 
